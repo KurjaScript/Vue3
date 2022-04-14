@@ -7,7 +7,10 @@
       <span :class="{done: todo.done}">{{todo.title}}</span>
     </li>
   </ul>
-  <div>{{active}} / {{all}}</div>
+  <div>
+    全选<input type="checkbox" v-model="allDone">
+    {{active}} / {{all}}
+  </div>
 </div>
 
 <script src="https://unpkg.com/vue@next"></script>
@@ -29,6 +32,18 @@ const App = {
     },
     all(){
       return this.todos.length
+    },
+    allDone: {
+      // 在 get 函数里，对于 allDone 会返回什么值，只需要判断计算属性 active 是不是 0 就可以
+      get: function() {
+        return this.active === 0
+      },
+      // set 函数做到的就是，在修改 allDone，也就是前端页面切换全选框时，直接遍历 todos，把里面的 done 字段直接和 allDone 同步即可
+      set: function(val) {
+        this.todos.forEach(todo => {
+          todo.done = val
+        })
+      }
     }
   },
   methods: {
