@@ -1,6 +1,7 @@
 <div id="app">
   <h2>{{title}}</h2>
   <input type="text" v-model="title" @keydown.enter="addTodo">
+  <button v-if="active < all" @click="clear">清理</button>
   <ul>
     <li v-for="todo in todos">
       <input type="checkbox" v-model="todo.done">
@@ -53,6 +54,9 @@ const App = {
         done: false
       })
       this.title = ""
+    },
+    clear() {
+      this.todos = this.todos.filter(v => !v.done)
     }
   }
 }
