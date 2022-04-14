@@ -7,6 +7,7 @@
       <span :class="{done: todo.done}">{{todo.title}}</span>
     </li>
   </ul>
+  <div>{{active}} / {{all}}</div>
 </div>
 
 <script src="https://unpkg.com/vue@next"></script>
@@ -17,8 +18,17 @@ const App = {
       title: "" ,// 定义一个数据
       todos:[
         {title: '吃饭', done: false},
-        {title: '睡觉', done: true}
+        {title: '睡觉', done: true},
+        {title: '学习', done: false}
       ]
+    }
+  },
+  computed: {
+    active(){
+      return this.todos.filter(v => !v.done).length
+    },
+    all(){
+      return this.todos.length
     }
   },
   methods: {
