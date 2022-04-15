@@ -94,6 +94,8 @@ module.exports = {
 
 这时你就会在控制台看到很多警告，以及很多优化的建议。我们参照建议，挨个去做优化就可以了。
 
+在 @vue/compat 提供了很多建议后，我们自己还是要慢慢做修改。但从另一个角度看，“偷懒”是优秀程序员的标志，社区就有能够做自动化替换的工具，比较好用的就是“阿里妈妈”出品的 gogocode，[官方文档](https://gogocode.io/zh/docs/specification/vue2-to-vue3)，就不在这里赘述了。
+
 **自动化替换工具的原理很简单，和 Vue 的 Compiler 优化的原理是一样的，也就是利用编译原理做代码替换。**如下图所示，我们利用 babel 分析左边 Vue 2 的源码，解析成 AST，然后根据 Vue 3 的写法对 AST 进行转换，最后生成新的 Vue 3 代码。
 
 ![img](https://static001.geekbang.org/resource/image/e3/e0/e371fee0a7e75942151724yy58fbfee0.jpg?wh=1920x1040)
