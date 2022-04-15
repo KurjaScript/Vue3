@@ -59,3 +59,43 @@ Vue-cli4 已经提供内置选项，你当然可以选择它支持的 Vue 2。�
 
 vue-router 是复杂项目必不可少的路由库，它也包含一些写法上的变化，比如从 new Router 变成 createRouter；使用方式上，也全面拥抱 Composition API 风格，提供了 useRouter 和 useRoute 等方法。
 
+### 使用自动化升级工具进行 Vue 的升级
+
+对于复杂项目，我们需要借助几个自动化工具来帮我们过渡。
+
+首先是在 Vue 3 的项目里，有一个 @vue/compat 的库，这是一个 Vue 3 的构建版本，提供了兼容 Vue 2 的行为。这个版本默认运行在 Vue 2 下，它的大部分 API 和 Vue 2 保持了一致。当使用那些在 Vue 3 中发生变化或者废弃的特性时，这个版本会提出警告，从而避免兼容性问题的发生，帮助你很好地迁移项目。并且通过升级的提示信息，@vue/compat 还可以很好地帮助你学习版本之间的差异。
+
+在下面的代码中，首先我们把项目依赖的 Vue 版本换成 Vue 3，并且引入了 @vue/compat 。
+
+```js
+"dependencies": {
+-  "vue": "^2.6.12",
++  "vue": "^3.2.19",
++  "@vue/compat": "^3.2.19"
+   ...
+},
+"devDependencies": {
+-  "vue-template-compiler": "^2.6.12"
++  "@vue/compiler-sfc": "^3.2.19"
+}
+```
+
+然后给 vue 设置别名 @vue/compat，也就是以 compat 作为入口，代码如下：
+
+```js
+// vue.config.js
+module.exports = {
+  chainWebpack: config => {
+    config.resolve.alias.set('vue', '@vue/compat')
+    ......
+  }
+}
+```
+
+这时你就会在控制台看到很多警告，以及很多优化的建议。我们参照建议，挨个去做优化就可以了。
+
+**自动化替换工具的原理很简单，和 Vue 的 Compiler 优化的原理是一样的，也就是利用编译原理做代码替换。**如下图所示，我们利用 babel 分析左边 Vue 2 的源码，解析成 AST，然后根据 Vue 3 的写法对 AST 进行转换，最后生成新的 Vue 3 代码。
+
+![img](https://static001.geekbang.org/resource/image/e3/e0/e371fee0a7e75942151724yy58fbfee0.jpg?wh=1920x1040)
+
+对于替换过程的中间编译成的 AST，你可以理解为用 JavaScript 的对象去描述这段代码，这和虚拟 DOM 的理念有一些相似，我们基于这个对象去做优化，最终映射生成新的 Vue 3 代码。关于 AST 的细节，在课程后面的 Vue 3 生态源码篇中，我会带你手写一个迷你版的 Vue 3 Compiler，那时你会对 AST 和它背后的编译原理有一个更深的认识。
