@@ -57,3 +57,44 @@
 </script>
 
 在这段代码中，computed 被单独引入使用，而不是组件的一个配置项。
+
+### Composition API 拆分代码
+
+使用 Composition API 的逻辑来拆分代码，把一个功能相关的数据都维护在一起。
+
+但是，把所有功能代码都写在一起的话，也会带来一些问题：随着功能越来越复杂，script 内部的代码也会越来越多。因此需要对代码进一步拆分，把独立的模块封装成一个函数，真正做到**按需拆分**。
+
+新建一个函数[关于](http://localhost:3000/#/about)
+
+```js
+function useTodos() {
+  let title = ref("");
+  let todos = ref([{ title: "学习Vue", done: false }]);
+  function addTodo() {
+    todos.value.push({
+      title: title.value,
+      done: false,
+    });
+    title.value = "";
+  }
+  function clear() {
+    todos.value = todos.value.filter((v) => !v.done);
+  }
+  let active = computed(() => {
+    return todos.value.filter((v) => !v.done).length;
+  });
+  let all = computed(() => todos.value.length);
+  let allDone = computed({
+    get: function () {
+      return active.value === 0;
+    },
+    set: function (value) {
+      todos.value.forEach((todo) => {
+        todo.done = value;
+      });
+    },
+  });
+  return { title, todos, addTodo, clear, active, all, allDone };
+}
+```
+
