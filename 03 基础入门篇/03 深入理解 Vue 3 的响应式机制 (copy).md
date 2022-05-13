@@ -96,3 +96,28 @@ watchEffect(()=>{
 
  以上代码， Vue 3 的 relative 函数可以把对象变成响应式数据，而 relativve 就是基于 Proxy 实现的。我们还可以通过 watchEffect，在 obj.count 修改后，执行数据的打印。
 
+#### value setter
+
+Vue 3 中还有另一个响应式实现的逻辑，就是利用对象的 get 和 set 函数来进行监听，**这种响应式的实现方式，只能拦截某一个 属性的修改，这也是 Vue 3 中 ref 这个 API 的实现。**这也是ref使用.value的原因！
+
+```js
+let getDouble = n => n * 2
+let _value = 1
+double = getDouble(_value)
+
+let count = {
+  get value() {
+    return _value
+  },
+  set value(val) {
+    _value = val
+    double = getDouble(_value)
+
+  }
+}
+console.log(count.value,double)
+count.value = 2
+console.log(count.value,double)
+```
+
+以上代码，我们拦截了 count 的 value 属性，并且拦截了 set 操作，也实现了类似的功能。
