@@ -98,3 +98,37 @@ function useTodos() {
 }
 ```
 
+
+
+**因为 ref 和 computed 等功能都可以从 Vue 中全局引入，所以就可以把组建任意颗粒化地拆分和组合。**这样大大地提高了代码的可维护性和复用性。
+
+### style 样式的特性
+
+如果在 scoped 内部，你还想写全局的样式，可以用:global 来标记。
+
+可以通过 v-bind 函数，直接在 CSS 中使用 JavaScript 中的变量。
+
+```vue
+<template>
+  <div>
+    <h1 @click="add">{{ count }}</h1>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+let count = ref(1)
+let color = ref('red')
+function add() {
+  count.value++
+  color.value = Math.random()>0.5? "blue":"red"
+}
+</script>
+
+<style scoped>
+h1 {
+  color:v-bind(color);
+}
+</style>>
+```
+
