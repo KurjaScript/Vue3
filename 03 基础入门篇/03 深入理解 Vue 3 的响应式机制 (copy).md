@@ -34,7 +34,7 @@ defineProperty API 语法中也有缺陷，比如以下代码：
 
 ```js
 delete obj.count
-console.log(double) // doube还是4
+console.log(double) // double 还是4
 ```
 
 删除 obj.count 属性，set 函数就不会执行，double 还是之前的数值。这也是为什么在 Vue 2 中，我们需要 $delete 一个专门的函数去删除数据。
@@ -121,3 +121,15 @@ console.log(count.value,double)
 ```
 
 以上代码，我们拦截了 count 的 value 属性，并且拦截了 set 操作，也实现了类似的功能。
+
+#### 三种原理的对比
+
+![img](https://static001.geekbang.org/resource/image/b5/11/b5344de85923a2ba8bea60283b491711.png?wh=1336x650)
+
+### 定制数据响应式
+
+[详见项目](https://github.com/KurjaScript/geek-admain/tree/10809feafb80a8cb40c3c4a2091253b2010a5b56)封装 useStorage 函数
+
+我们可以把日常开发中用到的数据，无论是浏览器的本地存储，还是网络数据，都封装成响应式数据，统一使用响应式数据开发的模式。这样，我们开发项目的时候，只需要修改对应的数据就可以了。
+
+![img](https://static001.geekbang.org/resource/image/5a/0e/5a5yy5dc6f6b25f1c1ff8f3a434cd10e.jpg?wh=2316x1829)
