@@ -133,3 +133,27 @@ console.log(count.value,double)
 我们可以把日常开发中用到的数据，无论是浏览器的本地存储，还是网络数据，都封装成响应式数据，统一使用响应式数据开发的模式。这样，我们开发项目的时候，只需要修改对应的数据就可以了。
 
 ![img](https://static001.geekbang.org/resource/image/5a/0e/5a5yy5dc6f6b25f1c1ff8f3a434cd10e.jpg?wh=2316x1829)
+
+### Vueuse 工具包
+
+Vue 社区的工具集合，Vueuse 把开发中常见的属性都封装成响应式函数。VueUse 的官方的介绍说这是一个 Composition API 的工具集合，适用于 Vue 2.x 或者 Vue 3.x，和 React Hooks 很像。
+
+在项目中安装 Vueuse 插件：`npm install @vueuse/core`
+
+以 useFullscreen 为例，返回全屏的状态和切换全屏。
+
+```js
+<template>
+  <h1 @click="toggle">click</h1>
+</template>
+<script setup>
+import { useFullscreen } from '@vueuse/core'
+const { isFullscreen, enter, exit, toggle } = useFullscreen()
+</script>
+```
+
+不需要考虑浏览器全屏的 API，而是直接使用 VueUse 响应式数据和函数就可以很轻松地在项目中实现全屏功能。
+
+useFullscreen 的封装逻辑和 useStorage 类似，都是**屏蔽了浏览器的操作，把所有我们需要用到的状态和数据都用响应式的方式统一管理**，VueUse 中包含了很多我们常用的工具函数，我们可以把网络状态、异步请求的数据、动画和事件等功能，都看成是响应式的数据去管理。
+
+**把一切项目中的状态和数据都封装成响应式的接口，屏蔽浏览器的 API，对外暴露就是普通的数据，可以极大地提高开发效率。**
