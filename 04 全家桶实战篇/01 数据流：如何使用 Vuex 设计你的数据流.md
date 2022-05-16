@@ -83,3 +83,96 @@ function add(){
 比如项目中的登录用户名，页面的右上角需要显示，有些信息弹窗也需要显示。这样的数据就需要放在 Vuex 中统一管理，每当需要抽离这样的数据的时候，我们都需要思考这个数据的初始化和更新逻辑。
 
 ![img](https://static001.geekbang.org/resource/image/9f/b9/9fca00b12fb51d52bbb48277a3c4e2b9.jpg?wh=1920x1224)
+
+### 手写一个迷你 Vuex
+
+首先，我们需要创建一个变量 store 用来存储数据。下一步就是**把这个 store 的数据包转成响应式的数据**，并且提供给 Vue 组件使用。在 Vue 中有 provide/inject 这两个函数专门用来做数据共享，**provide 注册了数据后，所有的子组件都可以通过 inject 获取数据**。
+
+完成刚才的数据转换之后，我们直接进入到 src/store 文件夹下，新建 gvuex.js。下面的代码中，我们使用一个 Store 类来管理数据，类的内部使用 _state 存储数据，使用 mutations 来存储数据修改的函数，注意这里的 state 已经使用 reactive 包裹成响应式数据了。
+
+```js
+import { inject, reactive } from 'vue'
+
+const STORE_KEY = '__store__'
+function useStore() {
+  return inject(STORE_KEY)
+}
+function createStore(options) {
+  return new Store(options)
+}
+class Store {
+  constructor(options) {
+    this._state = reactive({
+      data: options.state()
+    })
+    this._mutations = options.mutations
+  }
+}
+export { createStore, useStore }
+```
+
+上面的代码还暴露了 createStore 去创建 Store 的实例，并且可以在任意组件的 setup 函数内，使用 useStore 去获取 store 的实例。下一步我们回到 src/store/index.js 中，把 vuex 改成 ./gvuex。下面的代码中，我们使用 createStore 创建了一个 store 实例，并且实例内部使用 state 定义了 count 变量和修改 count 值的 add 函数。
+
+```js
+// import { createStore } from 'vuex'
+import { createStore } from './gvuex'
+const store = ...
+export default store
+```
+
+最终我们使用 store 的方式，在项目入口文件 src/main.js 中使用 app.use(store) 注册。为了让 useStore 能正常工作，下面的代码中，我们需要给 store 新增一个 install 方法，这个方法会在 app.use 函数内部执行。我们通过 app.provide 函数注册 store 给全局的组件使用。
+
+```js
+class Store {
+  // main.js入口处app.use(store)的时候，会执行这个函数
+  install(app) {
+    app.provide(STORE_KEY, this)
+  }
+}
+```
+
+下面的代码中，Store 类内部变量 _state 存储响应式数据，读取 state 的时候直接获取响应式数据 _state.data，并且提供了 commit 函数去执行用户配置好的 mutations。
+
+```js
+import { inject, reactive } from 'vue'
+const STORE_KEY = '__store__'
+function useStore() {
+  return inject(STORE_KEY)
+}
+function createStore(options) {
+  return new Store(options)
+}
+class Store {
+  constructor(options) {
+    this.$options = options
+    this._state = reactive({
+      data: options.state
+    })
+    this._mutations = options.mutations
+  }
+  get state() {
+    return this._state.data
+  }
+  commit = (type, payload) => {
+    const entry = this._mutations[type]
+    entry && entry(this.state, payload)
+  }
+  install(app) {
+    app.provide(STORE_KEY, this)
+  }
+}
+export { createStore, useStore }
+```
+
+这样在组件内部，我们就可以使用这个迷你的 Vuex 去实现一个累加器了。下面的代码中，我们使用 useStore 获取 store 的实例，并且使用计算属性返回 count，在修改 count 的时候使用 store.commit(‘add’) 来修改 count 的值。
+
+```js
+import {useStore} from '../store/gvuex'
+let store =useStore()
+let count = computed(()=>store.state.count)
+function add(){
+    store.commit('add')
+}
+```
+
+这样借助 vue 的插件机制和 reactive 响应式功能，我们只用 30 行代码，就实现了一个最迷你的数据管理工具，也就是一个迷你的 Vuex 实现。
