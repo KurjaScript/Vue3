@@ -14,9 +14,15 @@ Chrome 的开发者工具 **Chrome DevTools**。
 
 以上都是 Chrome 的开发者工具中自带的选项，而调试窗口最后面的 Vue 页面就是需要额外安装的 Vue Devtools，也就是调试 Vue 必备的工具。
 
+### Vue Devtools
 
+Vue Devtools 可以算是一个 Elements 页面的 Vue 定制版本，调试页面左侧的显示内容并不是 HTML，而是 Vue 的组件的嵌套关系。
 
+不多说了，得实际调试。[详细课程](https://time.geekbang.org/column/article/442479)
 
+这里有一个小技巧：在 Component 页面下，选中一个组件后，调试窗口的右侧会出现 4 个小工具。
 
+![img](https://static001.geekbang.org/resource/image/53/46/53b82ec4499c08b0b8403a8471070946.png?wh=1920x807)
 
+最右边的那个工具可以让你直接在编辑器里打开这个代码。这样，调试组件的时候就不用根据路径再去 VS Code 里搜索代码文件了，这算是一个非常好用的小功能。
 
