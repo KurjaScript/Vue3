@@ -54,4 +54,120 @@ window.addEventListener('hashchange',fn)
 window.addEventListener('popstate', fn)
 ```
 
-### 
+### 手写迷你 vue-router
+
+这里我们准备设计一个使用 hash 模式的迷你 vue-router。
+
+现在，我们在 src/router 目录下新建一个 grouter 文件夹，并且在 grouter 文件夹内部新建 index.js。有了上一讲手写 Vuex 的基础，我们就可以在 index.js 中写入下面的代码。
+
+在代码中，我们首先实现了用 Router 类去管理路由，并且，我们使用 createWebHashHistory 来返回 hash 模式相关的监听代码，以及返回当前 URL 和监听 hashchange 事件的方法；然后，我们通过 Router 类的 install 方法注册了 Router 的实例，并对外暴露 createRouter 方法去创建 Router 实例；最后，我们还暴露了 useRouter 方法，去获取路由实例。
+
+```js
+
+import {ref,inject} from 'vue'
+const ROUTER_KEY = '__router__'
+
+function createRouter(options){
+    return new Router(options)
+}
+
+function useRouter(){
+    return inject(ROUTER_KEY)
+}
+function createWebHashHistory(){
+    function bindEvents(fn){
+        window.addEventListener('hashchange',fn)
+    }
+    return {
+        bindEvents,
+        url:window.location.hash.slice(1) || '/'
+    }
+}
+class Router{
+    constructor(options){
+        this.history = options.history
+        this.routes = options.routes
+        this.current = ref(this.history.url)
+
+        this.history.bindEvents(()=>{
+            this.current.value = window.location.hash.slice(1)
+        })
+    }
+    install(app){
+        app.provide(ROUTER_KEY,this)
+    }
+}
+
+export {createRouter,createWebHashHistory,useRouter}
+```
+
+有了上面这段代码，我们回到 src/router/index.js 中，可以看到下面代码的使用方式，我们使用 createWebHashHistory 作为 history 参数，使用 routes 作为页面的参数传递给 createRouter 函数。
+
+```js
+import {
+    createRouter,
+    createWebHashHistory,
+} from './grouter/index'
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes
+})
+```
+
+下一步，我们需要注册两个内置组件 router-view 和 router-link。在 createRouter 创建的 Router 实例上，current 返回当前的路由地址，并且使用 ref 包裹成响应式的数据。router-view 组件的功能，就是 current 发生变化的时候，去匹配 current 地址对应的组件，然后动态渲染到 router-view 就可以了。我们在 src/router/grouter 下新建 RouterView.vue，写出下面的代码。在代码中，我们首先使用 useRouter 获取当前路由的实例；然后通过当前的路由，也就是 router.current.value 的值，在用户路由配置 route 中计算出匹配的组件；最后通过计算属性返回 comp 变量，在 template 内部使用 component 组件动态渲染。
+
+```js
+<template>
+    <component :is="comp"></component>
+</template>
+<script setup>
+
+import {computed } from 'vue'
+import { useRouter } from '../grouter/index'
+
+let router = useRouter()
+
+const comp = computed(()=>{
+    const route = router.routes.find(
+        (route) => route.path === router.current.value
+    )
+    return route?route.component : null
+})
+</script>
+```
+
+在上面的代码中，我们的目的是介绍 vue-router 的大致原理。之后，在课程的源码篇中，我们会在《前端路由原理：vue-router 源码剖析》这一讲完善这个函数的路由匹配逻辑，并让这个函数支持正则匹配。有了 RouterView 组件后，我们再来实现 router-link 组件。我们在 grouter 下面新建文件 RouterILink.vue，并写入下面的代码。代码中的 template 依然是渲染一个 a 标签，只是把 a 标签的 href 属性前面加了个一个 #， 就实现了 hash 的修改。
+
+```js
+<template>
+    <a :href="'#'+props.to">
+        <slot />
+    </a>
+</template>
+
+<script setup>
+import {defineProps} from 'vue'
+let props = defineProps({
+    to:{type:String,required:true}
+})
+
+</script>
+```
+
+然后，回到 grouter/index.js 中，我们注册 router-link 和 router-view 这两个组件, 这样 hash 模式的迷你 vue-router 就算实现了。这里我演示了支持 hash 模式迷你 vue-router，那你不妨进一步思考一下，history 模式又该如何实现。
+
+```js
+import {ref,inject} from 'vue'
+import RouterLink from './RouterLink.vue'
+import RouterView from './RouterView.vue'
+class Router{
+    ....
+    install(app){
+        app.provide(ROUTER_KEY,this)
+        app.component("router-link",RouterLink)
+        app.component("router-view",RouterView)
+    }
+}
+```
+
+**实际上，vue-router 还需要处理很多额外的任务，比如路由懒加载、路由的正则匹配等等。**在今天了解了 vue-router 原理之后，等到课程最后一部分剖析 vue-router 源码的那一讲时，你就可以真正感受到“玩具版”的 router 和实战开发中的 router 的区别。
