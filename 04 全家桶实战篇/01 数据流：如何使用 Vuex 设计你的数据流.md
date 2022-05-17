@@ -176,3 +176,33 @@ function add(){
 ```
 
 这样借助 vue 的插件机制和 reactive 响应式功能，我们只用 30 行代码，就实现了一个最迷你的数据管理工具，也就是一个迷你的 Vuex 实现。
+
+### Vuex 实战
+
+#### getters
+
+Vuex 可以用 getters 配置，来实现 computed 的功能。[以累加器数字乘以 2 为例](https://github.com/KurjaScript/geek-admain/commit/ea648f65f116a833c8eb9f23f125aaffbf04743b)
+
+#### action
+
+在实际开发中，有很多数据是从网络请求获取到的。在 Vuex 中，mutation 的设计就是用来实现同步地修改数据。如果需要异步修改，我们需要一个新的配置 **action**。
+
+现在模拟一个异步场景：[点击按钮之后的 1 秒，再去做数据修改](https://github.com/KurjaScript/geek-admain/commit/0c1cfcb455ddb282894386ef38621d24b0a5ebbc)。
+
+
+
+在 action 中，开发者可以做任意的异步处理。这里使用 seTimeout 来模拟延时，然后在 action 内部调用 mutation。
+
+**action 并不直接修改数据，而是通过 mutations 去修改。**actions 的调用方式是使用 store.dispatch。
+
+Vuex 在整体上的逻辑，从宏观来说，Vue 的组件负责渲染页面，组件中用到跨页面的数据，就是用 state 来存储，但是 Vue 不能直接修改 state，而是通过 actions/mutations 去做数据的修改。
+
+![img](https://static001.geekbang.org/resource/image/85/28/851478d3f2b0393474de6e5b3b355a28.png?wh=1280x866)
+
+下面这个图也是 Vuex 官方的结构图，很好地拆解了 Vuex 在 Vue 全家桶中的定位。我们项目中也会用 Vuex 来管理所有跨组件的数据，并且我们也会在 Vuex 内部根据功能模块去做拆分，会把用户权限等不同模块的组件分开去管理。
+
+![img](https://static001.geekbang.org/resource/image/23/7a/237557819e2148ac022305eaf86c0b7a.png?wh=701x551)
+
+回到正在做的这个项目中，有大量的数据交互需求、用户的登录状态、登录的有效期、布局的设置，不同用户还会有不同的菜单权限等。
+
+面对不同的交互需求，**总体来说，我们在决定一个数据是否用 Vuex 来管理的时候，核心就是要思考清楚，这个数据是否有共享给其他页面或者是其他组件的需要。**如果需要，就放置在 Vuex 中管理；**如果不需要，就应该放在组件内部使用 ref 或者 reactive 去管理。**
